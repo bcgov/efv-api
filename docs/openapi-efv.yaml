@@ -1,0 +1,207 @@
+openapi: "3.0.0"
+servers:
+  - url: "http://localhost:8080/"
+info:
+  description: "API for verifying eligibility factors for BC Government services"
+  title: "EFV API"
+  termsOfService: "https://www.gov.bc.ca/"
+  contact:
+    name: "BC Government Development Team"
+    email: "support@gov.bc.ca"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+  version: "1.0"
+  x-api-package: "evf.gov.bc.ca"
+paths:
+  /health:
+    get:
+      summary: Health check
+      tags: [health]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /api/v1/eligibility/factors:
+    get:
+      description: "Retrieve list of all available eligibility factors and their definitions"
+      tags:
+        - "Eligibility"
+      summary: "Get available eligibility factors"
+      responses:
+        '200':
+          description: "List of available factors"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/models.FactorDefinition'
+        '405':
+          description: "Method Not Allowed"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.ErrorResponse'
+
+  /api/v1/eligibility/verify:
+    post:
+      description: "Verify multiple eligibility factors for a given application"
+      tags:
+        - "Eligibility"
+      summary: "Verify eligibility factors"
+      requestBody:
+        description: "Eligibility verification request"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/models.EligibilityRequest'
+            example:
+              applicantId: "12345"
+              factors:
+                - type: "age"
+                  value: "25"
+                - type: "residence"
+                  value: "BC"
+      responses:
+        '200':
+          description: "Successful eligibility verification"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.EligibilityResponse'
+        '400':
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.ErrorResponse'
+        '500':
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.ErrorResponse'
+
+components:
+  schemas:
+    models.EligibilityRequest:
+      type: object
+      properties:
+        applicantId:
+          type: string
+          example: "12345"
+        factors:
+          type: array
+          items:
+            $ref: '#/components/schemas/models.Factor'
+      required:
+        - factors
+
+    models.EligibilityResponse:
+      type: object
+      properties:
+        applicantId:
+          type: string
+          example: "12345"
+        eligible:
+          type: boolean
+          example: true
+        factors:
+          type: array
+          items:
+            $ref: '#/components/schemas/models.FactorResult'
+        timestamp:
+          type: string
+          example: "2025-11-19T10:30:00Z"
+
+    models.ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 400
+        error:
+          type: string
+          example: "Invalid request format"
+        timestamp:
+          type: string
+          example: "2025-11-19T10:30:00Z"
+
+    models.Factor:
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          $ref: '#/components/schemas/models.FactorType'
+        value:
+          type: string
+          example: "25"
+
+    models.FactorDefinition:
+      type: object
+      properties:
+        description:
+          type: string
+          example: "Verifies if the applicant meets the minimum age requirement"
+        name:
+          type: string
+          example: "Age Verification"
+        required:
+          type: boolean
+          example: true
+        type:
+          allOf:
+            - $ref: '#/components/schemas/models.FactorType'
+          example: "age"
+
+    models.FactorResult:
+      type: object
+      properties:
+        eligible:
+          type: boolean
+          example: true
+        reason:
+          type: string
+          example: "Meets minimum age requirement"
+        type:
+          type: string
+          example: "age"
+        value:
+          type: string
+          example: "25"
+
+    models.FactorType:
+      type: string
+      enum:
+        - age
+        - residence
+        - income
+        - citizenship
+        - employment
+      x-enum-varnames:
+        - FactorTypeAge
+        - FactorTypeResidence
+        - FactorTypeIncome
+        - FactorTypeCitizenship
+        - FactorTypeEmployment
+      x-sync-note: "Keep this enum in sync with internal/service/eligibility.allowedFactorTypes"
+
+    models.HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "ok"
+

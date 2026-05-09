@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: efv-api
+  labels:
+    app: efv-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: efv-api
+  template:
+    metadata:
+      labels:
+        app: efv-api
+    spec:
+      containers:
+        - name: efv-api
+          image: REPLACE_WITH_IMAGE
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
