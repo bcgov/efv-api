@@ -12,6 +12,7 @@ This repository contains a lightweight HTTP API with OpenAPI documentation and a
 
 - OpenAPI spec: `docs/openapi-efv.yaml`
 - Swagger UI (local): http://localhost:8080/swagger/
+ - Development server (OpenShift): https://efv-api-17db4f-dev.apps.silver.devops.gov.bc.ca/swagger/
 
 ---
 
@@ -174,5 +175,4 @@ Before submitting a PR:
 This repository is provided as-is. See `LICENSE` for details (if present).
 
 ---
-
-If you'd like I can: add CI examples to run the build, or add a `Makefile` with convenience targets (`make build`, `make run`, `make test`).
+---

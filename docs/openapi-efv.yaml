@@ -1,6 +1,9 @@
 openapi: "3.0.0"
 servers:
   - url: "http://localhost:8080/"
+    description: "Local development"
+  - url: "https://efv-api-17db4f-dev.apps.silver.devops.gov.bc.ca/"
+    description: "Development (OpenShift)"
 info:
   description: "API for verifying eligibility factors for BC Government services"
   title: "EFV API"
